@@ -1,5 +1,6 @@
 # Auth Service — Step‑by‑Step Guide (Frontend & Backend)
-
+<a href="./FAP-AMS.mp4">Demo video link here</a>
+<video controls src="FAP-AMS.mp4" title="FAP-AMS.mp4"></video>
 This is a Dockerized FastAPI authentication service using JWT (RS256), PostgreSQL, and a built‑in admin UI.
 
 Use it as a central auth provider for multiple apps: your frontends ask it for tokens; your backends verify those tokens with the public JWKS.
