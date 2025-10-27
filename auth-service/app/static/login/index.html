@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sign in</title>
+  <style>
+    body{font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; margin:0; background:#0b1016; color:#e5e7eb;}
+    .wrap{display:flex; align-items:center; justify-content:center; min-height:100vh; padding:16px;}
+    .card{width:100%; max-width:380px; background:#111827; border:1px solid #1f2937; border-radius:12px; padding:22px; box-shadow:0 10px 30px rgba(0,0,0,.35)}
+    h1{font-size:1.25rem; margin:0 0 12px}
+    input{width:100%; padding:10px 12px; border:1px solid #374151; background:#0f172a; color:#e5e7eb; border-radius:8px; font-size:14px; margin:6px 0}
+    button{width:100%; padding:10px 12px; border:none; border-radius:8px; background:#3b82f6; color:#fff; font-weight:600; cursor:pointer; margin-top:10px}
+    .msg{min-height:20px; font-size:0.9rem; color:#fca5a5; margin-top:10px}
+    .hint{color:#9ca3af; font-size:0.85rem; margin-top:8px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Sign in</h1>
+      <input id="email" type="email" placeholder="Email" autocomplete="username" />
+      <input id="password" type="password" placeholder="Password" autocomplete="current-password" />
+      <button id="btn">Sign in</button>
+      <div id="msg" class="msg" aria-live="polite"></div>
+      <div class="hint">You will be redirected after successful login.</div>
+    </div>
+  </div>
+  <script>
+    async function login(){
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const msg = (t)=> document.getElementById('msg').textContent = t || '';
+      msg('');
+      if(!email || !password){ msg('Email and password are required'); return; }
+      try{
+        const res = await fetch('/auth/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email, password }) });
+        if(!res.ok){ const d = await res.json().catch(()=>({detail:'Login failed'})); msg(d.detail || 'Login failed'); return; }
+        const data = await res.json();
+        // store token and go to admin by default
+        try{ localStorage.setItem('auth_token', data.access_token); }catch(e){}
+        window.location.href = '/admin/';
+      }catch(e){ msg(e.message); }
+    }
+    document.getElementById('btn').addEventListener('click', login);
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Enter') login(); });
+  </script>
+</body>
+</html>

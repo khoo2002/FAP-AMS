@@ -1,0 +1,50 @@
+version: "3.8"
+
+services:
+  auth-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: auth
+      POSTGRES_PASSWORD: auth
+      POSTGRES_DB: authdb
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - 5433:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U auth -d authdb"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  auth-service:
+    build: ./auth-service
+    depends_on:
+      auth-db:
+        condition: service_healthy
+    ports:
+      - 8001:8001
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - PRIVATE_KEY_PATH=${PRIVATE_KEY_PATH}
+      - PUBLIC_KEY_PATH=${PUBLIC_KEY_PATH}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES}
+      - JWT_ISSUER=${JWT_ISSUER}
+      - JWT_AUDIENCE=${JWT_AUDIENCE}
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+      - PUBLIC_BASE_URL=${PUBLIC_BASE_URL}
+      - PASSWORD_RESET_EXPIRES_MINUTES=${PASSWORD_RESET_EXPIRES_MINUTES}
+      - MIN_PASSWORD_LENGTH=${MIN_PASSWORD_LENGTH}
+      - REQUIRE_DIGIT=${REQUIRE_DIGIT}
+      - REQUIRE_LETTER=${REQUIRE_LETTER}
+      - REQUIRE_SPECIAL=${REQUIRE_SPECIAL}
+      - APP_VERSION=${APP_VERSION}
+    volumes:
+      - ./keys:/keys
+
+volumes:
+  db_data:

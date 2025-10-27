@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Password Reset</title>
+  <style>
+    body{font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; margin:0; background:#f6f7f9;}
+    .card{max-width:420px;margin:8vh auto;padding:24px;background:#fff;border:1px solid #e7e9ee;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,.06)}
+    h1{font-size:1.25rem;margin:0 0 12px}
+    p{color:#6b7280;margin:0 0 16px}
+    input{width:100%;padding:10px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;margin:6px 0}
+    button{width:100%;padding:10px 12px;border:none;border-radius:8px;background:#2563eb;color:#fff;font-weight:600;cursor:pointer;margin-top:10px}
+    .msg{margin-top:10px;min-height:20px;font-size:0.9rem}
+    .ok{color:#16a34a}
+    .err{color:#dc2626}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Reset your password</h1>
+    <p>Enter a new password. This link may only be used once and expires after a limited time.</p>
+    <input id="password" type="password" placeholder="New password" />
+    <input id="password2" type="password" placeholder="Confirm password" />
+    <button id="btn">Set password</button>
+    <div id="msg" class="msg"></div>
+  </div>
+  <script>
+    const qs = new URLSearchParams(window.location.search);
+    const token = qs.get('token') || '';
+    const msg = (t,c)=>{ const el=document.getElementById('msg'); el.textContent=t; el.className='msg '+(c||''); };
+    document.getElementById('btn').addEventListener('click', async ()=>{
+      const p1 = document.getElementById('password').value;
+      const p2 = document.getElementById('password2').value;
+      if(!p1 || p1!==p2){ msg('Passwords do not match','err'); return; }
+      try{
+        const res = await fetch('/users/password-reset/use', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ token, new_password: p1 }) });
+        if(!res.ok){ const t=await res.text(); msg('Failed: '+t,'err'); return; }
+        msg('Password changed successfully. You may close this page.','ok');
+      }catch(e){ msg('Error: '+e.message,'err'); }
+    });
+  </script>
+</body>
+</html>

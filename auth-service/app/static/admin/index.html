@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth Service - Admin</title>
+    <!-- Optional public base for absolute links -->
+    <meta name="public-base-url" content="">
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --light-gray: #f8f9fa;
+            --dark-gray: #343a40;
+            --border-color: #dee2e6;
+            --body-bg: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-color: #212529;
+            --text-muted: #6c757d;
+            --modal-overlay-bg: rgba(0, 0, 0, 0.6);
+        }
+        [data-theme="dark"] {
+            --body-bg: #0b1016;
+            --card-bg: #111827;
+            --text-color: #e5e7eb;
+            --text-muted: #9ca3af;
+            --border-color: #1f2937;
+            --light-gray: #0f172a;
+            --primary-color: #3b82f6;
+            --secondary-color: #4b5563;
+            --modal-overlay-bg: rgba(0,0,0,0.7);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            background-color: var(--body-bg);
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+        .container { max-width: 1200px; margin: 20px auto; padding: 20px; }
+
+        .app-header { position: sticky; top: 0; z-index: 50; backdrop-filter: saturate(180%) blur(8px);
+            background-color: color-mix(in srgb, var(--card-bg) 85%, transparent);
+            border-bottom: 1px solid var(--border-color); }
+        .app-header .wrap { max-width: 1200px; margin: 0 auto; padding: 0.75rem 1.25rem; display:flex; align-items:center; gap: 14px; }
+        .brand { display:flex; align-items:center; gap:10px; }
+        .brand .logo { width: 28px; height: 28px; border-radius: 6px; display:grid; place-items:center; background: linear-gradient(135deg, var(--primary-color), #6ee7b7); color:white; font-weight:800; font-size:14px; }
+        .brand .title { font-weight: 700; font-size: 1.05rem; }
+        .spacer { flex: 1; }
+        .header-actions { display:flex; align-items:center; gap:8px; }
+        .icon-btn { background: transparent; border: 1px solid var(--border-color); color: var(--text-color); width: 36px; height: 36px; border-radius: 8px; display:grid; place-items:center; cursor:pointer; }
+        .icon-btn:hover { background: var(--light-gray); }
+        .avatar-btn { width: 36px; height: 36px; border-radius: 999px; border: 1px solid var(--border-color); background: var(--light-gray); color: var(--text-color); font-weight:700; cursor:pointer; display:grid; place-items:center; }
+        .user-menu { position: relative; }
+        .user-menu .menu { position: absolute; right: 0; top: 44px; min-width: 200px; background: var(--card-bg); border:1px solid var(--border-color); border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,.12); display:none; overflow:hidden; }
+        .user-menu .menu.visible { display:block; }
+        .menu-item { padding: 10px 12px; cursor:pointer; }
+        .menu-item:hover { background: var(--light-gray); }
+        .menu-item.danger { color: var(--danger-color); }
+        .menu-sep { height:1px; background: var(--border-color); }
+
+        .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 0.5rem; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .card-header { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; margin-bottom: 1rem; }
+        .card-header h3 { margin: 0; }
+
+        input[type="text"], input[type="password"], input[type="email"], select { width: 100%; padding: 0.65rem 0.75rem; margin: 0.25rem 0; border: 1px solid var(--border-color); border-radius: 0.4rem; box-sizing: border-box; font-size: 0.95rem; background: var(--card-bg); color: var(--text-color); }
+
+        button { padding: 0.6rem 1rem; border: 1px solid transparent; border-radius: 0.4rem; cursor: pointer; font-weight: 600; margin: 0.25rem; text-transform: none; font-size: 0.9rem; letter-spacing: 0.2px; transition: background-color 0.15s, opacity 0.1s; }
+        .btn { background-color: var(--primary-color); color: white; }
+        .btn:hover { opacity: .9; }
+        .btn-secondary { background-color: var(--secondary-color); color: white; }
+        .btn-danger { background-color: var(--danger-color); color: white; }
+        .btn-success { background-color: var(--success-color); color: white; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+        th, td { border-bottom: 1px solid var(--border-color); padding: 0.65rem; text-align: left; vertical-align: top; }
+        th { background-color: var(--light-gray); font-weight: 600; cursor: pointer; user-select: none; }
+        tr:last-child td { border-bottom: none; }
+        td .actions { display: flex; flex-wrap: wrap; gap: 6px; }
+        .role-tag { display: inline-block; background-color: var(--primary-color); color: white; padding: 0.15em 0.5em; border-radius: 999px; font-size: 0.75em; margin: 2px; }
+
+        .login-card { max-width: 420px; margin: 4rem auto; }
+        .hidden { display: none; }
+        .message { padding: 0.5rem; margin-top: 0.5rem; border-radius: 0.25rem; }
+        .error-msg { color: var(--danger-color); }
+        .success-msg { color: var(--success-color); }
+
+        /* Modal */
+        .modal-overlay { position: fixed; inset: 0; background: var(--modal-overlay-bg); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.2s, visibility 0.2s; }
+        .modal-overlay.visible { opacity: 1; visibility: visible; }
+        .modal { background: var(--card-bg); padding: 1.5rem; border-radius: 0.5rem; width: 90%; max-width: 520px; box-shadow: 0 8px 30px rgba(0,0,0,0.25); transform: translateY(-20px); transition: transform 0.2s; }
+        .modal-overlay.visible .modal { transform: translateY(0); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; margin-bottom: 1rem; }
+        .modal-header h3 { margin: 0; font-size: 1.1rem; }
+        .modal-close { background: transparent; border: 1px solid var(--border-color); border-radius: 0.4rem; font-size: 1.2rem; cursor: pointer; color: var(--text-color); width: 2rem; height: 2rem; display:flex; align-items:center; justify-content:center; }
+        .modal-actions { text-align: right; margin-top: 1rem; }
+
+        /* Tabs */
+    .nav-tabs { display: flex; gap: 6px; border: 1px solid var(--border-color); padding:4px; border-radius: 10px; background: var(--card-bg); }
+    .nav-tabs button { padding: 0.4rem 0.7rem; border: none; border-radius: 8px; background-color: transparent; color: var(--text-color); cursor: pointer; font-weight: 600; opacity:.8; }
+    .nav-tabs button.active { background-color: var(--light-gray); opacity:1; }
+
+        /* Toolbar */
+        .toolbar { display: grid; gap: 8px; grid-template-columns: 1fr 200px 160px auto; align-items: center; }
+        @media (max-width: 860px) { .toolbar { grid-template-columns: 1fr; } }
+
+        /* Toast */
+        #toast { position: fixed; right: 18px; bottom: 18px; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 12px; box-shadow: 0 8px 22px rgba(0,0,0,.15); min-width: 240px; display: none; z-index: 1100; }
+        #toast.success { border-color: var(--success-color); }
+        #toast.error { border-color: var(--danger-color); }
+
+        /* Loading overlay */
+        #loadingOverlay { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,.25); z-index: 999; }
+        .spinner { width: 36px; height: 36px; border: 4px solid rgba(255,255,255,.4); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div id="login" class="container">
+        <div class="card login-card">
+            <h3>Admin Login</h3>
+            <input id="email" type="email" placeholder="Email" value="admin@example.com" />
+            <input id="password" placeholder="Password" type="password" value="adminpass" />
+            <button id="btnLogin" class="btn">Login</button>
+            <div id="loginMsg" class="message error-msg" aria-live="polite"></div>
+        </div>
+    </div>
+
+    <div id="main" class="container hidden">
+                <header class="app-header">
+                    <div class="wrap">
+                        <div class="brand">
+                            <div class="logo">AS</div>
+                            <div class="title">Auth Admin</div>
+                        </div>
+                        <nav class="nav-tabs">
+                                <button id="tabUsers" class="active">Users</button>
+                                <button id="tabRoles">Roles</button>
+                        </nav>
+                        <div class="spacer"></div>
+                        <div class="header-actions">
+                            <button id="btnTheme" class="icon-btn" title="Toggle theme">🌙</button>
+                            <div class="user-menu">
+                                <button id="userMenuBtn" class="avatar-btn"><span id="avatarInitial">U</span></button>
+                                <div id="userMenu" class="menu" role="menu">
+                                    <div class="menu-item" id="menuProfile" role="menuitem">Profile (soon)</div>
+                                    <div class="menu-sep"></div>
+                                    <div class="menu-item danger" id="menuLogout" role="menuitem">Logout</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+        <section id="usersSection" class="section">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Users</h3>
+                    <div class="toolbar" style="min-width:280px; flex:1">
+                        <input id="searchUser" type="text" placeholder="Search email…" />
+                        <select id="filterRole"><option value="">All roles</option></select>
+                        <select id="filterStatus"><option value="">All statuses</option><option value="active">Active</option><option value="inactive">Inactive</option></select>
+                        <div style="text-align:right"><button id="btnOpenAddUserModal" class="btn">Add User</button></div>
+                    </div>
+                </div>
+                <table id="usersTable">
+                    <thead>
+                      <tr>
+                        <th data-sort="id">ID</th>
+                        <th data-sort="email">Email</th>
+                        <th>Roles</th>
+                        <th data-sort="is_active">Active</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <div id="usersPager" style="display:flex; justify-content: space-between; align-items:center; margin-top:8px;">
+                    <div style="color:var(--text-muted)" id="usersInfo"></div>
+                    <div>
+                      <button id="prevPage" class="btn-secondary">Prev</button>
+                      <button id="nextPage" class="btn-secondary">Next</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="rolesSection" class="section hidden">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Roles</h3>
+                    <div style="display:flex; gap:8px; align-items:center; width:100%;">
+                      <input id="searchRole" placeholder="Search role…" style="flex:1" />
+                      <button id="btnOpenAddRoleModal" class="btn">Add Role</button>
+                    </div>
+                </div>
+                <div id="rolesList" style="margin-top: 1rem;"></div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Modal Structure -->
+    <div id="modalOverlay" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle"></h3>
+                <button id="modalClose" class="modal-close" aria-label="Close">×</button>
+            </div>
+            <div id="modalContent"></div>
+            <div id="modalActions" class="modal-actions"></div>
+        </div>
+    </div>
+
+    <!-- Toast & Loading -->
+    <div id="toast" role="status" aria-live="polite"></div>
+    <div id="loadingOverlay"><div class="spinner"></div></div>
+
+    <script src="./app.js"></script>
+    <script>
+      // Simple tabs + theme toggle
+      document.addEventListener('DOMContentLoaded', ()=>{
+        const usersBtn = document.getElementById('tabUsers');
+        const rolesBtn = document.getElementById('tabRoles');
+        const usersSection = document.getElementById('usersSection');
+        const rolesSection = document.getElementById('rolesSection');
+        const themeBtn = document.getElementById('btnTheme');
+        const root = document.documentElement;
+        function showUsers(){ usersSection.classList.remove('hidden'); rolesSection.classList.add('hidden'); usersBtn.classList.add('active'); rolesBtn.classList.remove('active'); }
+        function showRoles(){ rolesSection.classList.remove('hidden'); usersSection.classList.add('hidden'); rolesBtn.classList.add('active'); usersBtn.classList.remove('active'); }
+        if(usersBtn && rolesBtn){ usersBtn.addEventListener('click', showUsers); rolesBtn.addEventListener('click', showRoles); }
+        themeBtn?.addEventListener('click', ()=>{ const d = root.getAttribute('data-theme') === 'dark'; root.setAttribute('data-theme', d ? '' : 'dark'); localStorage.setItem('theme', d ? 'light':'dark'); });
+        const saved = localStorage.getItem('theme'); if(saved==='dark'){ root.setAttribute('data-theme','dark'); }
+      });
+    </script>
+</body>
+</html>
