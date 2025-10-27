@@ -1,7 +1,12 @@
 # Auth Service — Step‑by‑Step Guide (Frontend & Backend)
-<a href="./FAP-AMS.mp4">Demo video link here</a>
+<!-- Video: place Threat-Intel-api.mp4 at the repo root or `docs/` -->
+<a href="./FAP-AMS.mp4">Threat-Intel.mp4</a>
 
-<video controls src="FAP-AMS.mp4" title="FAP-AMS.mp4"></video>
+<video controls src="./FAP-AMS.mp4" title="Threat-Intel" style="max-width:100%;height:auto;">
+  Your browser does not support the video tag. Download the video here:
+  <a href="./FAP-AMS.mp4">Threat-Intel.mp4</a>
+</video>
+
 This is a Dockerized FastAPI authentication service using JWT (RS256), PostgreSQL, and a built‑in admin UI.
 
 Use it as a central auth provider for multiple apps: your frontends ask it for tokens; your backends verify those tokens with the public JWKS.
